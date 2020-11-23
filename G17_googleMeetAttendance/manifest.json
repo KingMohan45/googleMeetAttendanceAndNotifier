@@ -1,0 +1,18 @@
+{
+
+  "description": "Attendance and Notifier for Google Meet",
+  "manifest_version": 2,
+  "name": "Google meet attendance and message notifier",
+  "version": "1.2",
+  "homepage_url": "https://github.com/KingMohan45/googleMeetAttendanceAndNotifier",
+  "icons": {
+    "48": "g17_r16_cs.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://meet.google.com/*"],
+      "js": ["scanAttendees.js"]
+    }
+  ]
+}
