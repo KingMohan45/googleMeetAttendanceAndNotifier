@@ -1,15 +1,15 @@
-var person_details=Array(4),subjectName,sectionName,aNodes,rNodes,peopleParent;
+let person_details=Array(4),subjectName,sectionName,aNodes,rNodes,peopleParent;
 let windowLocation=window.location.toString();
 let meetingCode=windowLocation.substring(windowLocation.indexOf(".com/")+5,windowLocation.indexOf("?")==-1?windowLocation.length:windowLocation.indexOf("?"))
 for(let i=0;i<4;i++){
 	person_details[i]=Array();
 }
-var chatObserver=new MutationObserver(function(mutationRecord){
+let chatObserver=new MutationObserver(function(mutationRecord){
 	mutationRecord.forEach((mutation)=>{
 		if(mutation.addedNodes.length>0){
 		//message=m[0].addedNodes[0]
 			mutation.addedNodes.forEach((content)=>{
-				var name,message=content.textContent;
+				let name,message=content.textContent;
 				if(content.attributes["data-sender-name"]){
 					name=content.attributes["data-sender-name"].textContent
 					message=message.slice(message.indexOf(name)+name.length);
@@ -24,7 +24,7 @@ var chatObserver=new MutationObserver(function(mutationRecord){
 					name=document.querySelector(".z38b6.CnDs7d.hPqowe").lastChild.attributes["data-sender-name"].textContent
 				}
 				if(name!="You"){
-					var notify=new Notification((sectionName?(sectionName+"_"):"")+name,{
+					let notify=new Notification((sectionName?(sectionName+"_"):"")+name,{
 			          body:message
 			        })
 		        	setTimeout(()=>{notify.close()},4000)
@@ -33,30 +33,30 @@ var chatObserver=new MutationObserver(function(mutationRecord){
 		}
 	})
 })
-var handRaiseObserver=new MutationObserver((mutationRecord)=>{
+let handRaiseObserver=new MutationObserver((mutationRecord)=>{
 	mutationRecord.forEach((mutation)=>{
     	mutation.addedNodes.forEach((person)=>{
-      		var name=person.children[0].textContent;
+      		let name=person.children[0].textContent;
 	      	if(name.indexOf("(You)")==-1){
-	        	var notify=new Notification((sectionName?(sectionName+"_"):"")+name,{body:"RaisedHand"})
+	        	let notify=new Notification((sectionName?(sectionName+"_"):"")+name,{body:"RaisedHand"})
 	        	setTimeout(()=>{notify.close()},4000)
 		    }
 	    })
 	})
 })
-var handRaiseBox=new MutationObserver((mutationRecord)=>{
+let handRaiseBox=new MutationObserver((mutationRecord)=>{
   	mutationRecord.forEach((mutation)=>{
 		mutation.addedNodes.forEach((addedNode)=>{	
 			if(addedNode.classList.contains("GvcuGe")){
 				handRaiseObserver.observe(addedNode,{childList:true})
 				if(addedNode.children.length>1){
-					var notify=new Notification("Two or more people raised hands");
+					let notify=new Notification("Two or more people raised hands");
 					setTimeout(()=>{notify.close()},4000)
 				}
 				else{
-					var name=addedNode.children[0].children[0].textContent;
+					let name=addedNode.children[0].children[0].textContent;
 					if(name.indexOf("(You)")==-1){
-	        			var notify=new Notification((sectionName?(sectionName+"_"):"")+name,{body:"RaisedHand"})
+	        			let notify=new Notification((sectionName?(sectionName+"_"):"")+name,{body:"RaisedHand"})
 	        			setTimeout(()=>{notify.close()},4000)
 		    		}
 				}
@@ -69,7 +69,7 @@ var handRaiseBox=new MutationObserver((mutationRecord)=>{
 		})
 	});
 })
-var peopleObserver = new MutationObserver(function(mutationRecord){
+let peopleObserver = new MutationObserver(function(mutationRecord){
 	aNodes=[],rNodes=[];
 	mutationRecord.forEach((mutation)=>{
 	    mutation.removedNodes.forEach((removed_node)=>{
@@ -88,8 +88,8 @@ var peopleObserver = new MutationObserver(function(mutationRecord){
 	    })
 	})
 	aNodes.forEach((inserted_node)=>{
-    	var name=inserted_node.children[0].textContent;
-    	var index=person_details[0].indexOf(name);
+    	let name=inserted_node.children[0].textContent;
+    	let index=person_details[0].indexOf(name);
     	if(index==-1){
     		person_details[0].push(name);
 			person_details[1].push(0);
@@ -114,8 +114,8 @@ var peopleObserver = new MutationObserver(function(mutationRecord){
     	}
 	})
 	rNodes.forEach((deleted_node)=>{
-    	var name=deleted_node.children[0].textContent;
-    	var index=person_details[0].indexOf(name);
+    	let name=deleted_node.children[0].textContent;
+    	let index=person_details[0].indexOf(name);
     	if(!--person_details[3][index]){
     		if(person_details[2][index]!=0){
     			person_details[1][index]+=(Date.now()-person_details[2][index])/60000;
@@ -124,11 +124,11 @@ var peopleObserver = new MutationObserver(function(mutationRecord){
     	}
 	})
 })
-var emergencyObserver=new MutationObserver((mutationRecord)=>{
+let emergencyObserver=new MutationObserver((mutationRecord)=>{
   	mutationRecord.forEach((mutation)=>{
     	mutation.addedNodes.forEach((addedNode)=>{
       		if(addedNode.classList.contains("TqTEJc")){
-      			var notify=new Notification("Internet fluctuating.");
+      			let notify=new Notification("Internet fluctuating.");
       			setTimeout(()=>{notify.close()},4000)
       			close_sessions();
       			person_details[3].forEach((value,index)=>{
@@ -201,10 +201,10 @@ function initiateDownload(unusual)
     		subjectName=unusual+"_"+subjectName;
     		unusual="";
   	}
-	let csvFile = "ID,Mail,Name,Total_time\n";
+	let csvFile = "ID,Name,Total_time\n";
     for (let i = 0; i < person_details[0].length; i++) {
     	let tMin=person_details[1][i]+(person_details[2][i]==0?0:(Date.now()-person_details[2][i]))/60000
-    	let name=person_details[0][i],charEncountered=false,noNums=6,id="",j;
+    	let name=person_details[0][i],noNums=6,id=name.charAt(0),j;
     	for(j=1;j<name.length;j++){
     		let cCode=name.charCodeAt(j);
     		if(cCode>=48 && cCode<=57){
@@ -214,15 +214,18 @@ function initiateDownload(unusual)
     			}
     		}
     		else if((cCode>=65 && cCode<=90) || (cCode>=97 && cCode<=122)){
-    			charEncountered=true;
-				break;
+    			if(j==1){
+    				id=name.charAt(j)+id;
+    				continue;
+    			}
+    			break;
     		}
     	}
-    	if(charEncountered){
-        	csvFile += ",,"+name.trim()+","+Math.floor(tMin)+":"+Math.floor(((tMin*100)%100)*0.6)+"min\n";
+    	if(noNums!=0){
+        	csvFile += ","+name.trim()+","+Math.floor(tMin)+":"+Math.floor(((tMin*100)%100)*0.6)+"min\n";
     	}
     	else{
-    		csvFile += "R"+id+",r"+id+"@rguktrkv.ac.in,"+name.substring(j+1).trim()+","+Math.floor(tMin)+":"+Math.floor(((tMin*100)%100)*0.6)+"min\n";
+    		csvFile += id+","+name.substring(j+1).trim()+","+Math.floor(tMin)+":"+Math.floor(((tMin*100)%100)*0.6)+"min\n";
     	}
     }
     date=new Date();
@@ -350,8 +353,8 @@ function initiatePage(showPopup)
 	}
 	peopleParent.childNodes.forEach((element)=>{
 		if(element.attributes.role!=null){
-			var name=element.childNodes[0].textContent;
-			var index=person_details[0].indexOf(name);
+			let name=element.childNodes[0].textContent;
+			let index=person_details[0].indexOf(name);
 			if(index==-1){
 				person_details[0].push(name);
 				person_details[1].push(0);
@@ -382,7 +385,7 @@ function initiatePage(showPopup)
 	}
 	//notification template
 	let mainElement=document.getElementsByClassName("MCcOAc IqBfM EWZcud cjGgHb d8Etdd LcUz9d ecJEib")[0]
-	var dataInputBox=document.createElement("div")
+	let dataInputBox=document.createElement("div")
 	mainElement.appendChild(dataInputBox)
 	dataInputBox.classList="llhEMd iWO5td";
 	dataInputBox.id="dataInputElement";
@@ -419,6 +422,34 @@ function initiatePage(showPopup)
 		document.getElementById("calcel").onclick=()=>{performAction("Calcel");}
 		document.getElementById("submit").onclick=()=>{performAction("Submit");}
 	}
+	let endBtn=document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve GaONte Qwoy0d ediA8b vzpHY M9Bg4d");
+	if(endBtn.length==1){
+		endBtn[0].attributes["aria-disabled"].value="true";
+		function removeBehavaviour(){
+			initiateDownload();
+   	 		alert("Click ok/close tab after file download");
+   	 		endBtn[0].addEventListener("click",removeBehavaviour);
+   	 		endBtn[0].attributes["aria-disabled"].value="false";
+		}
+		endBtn[0].addEventListener("click",removeBehavaviour);
+   	}
+   	else{
+   		if(!window.Notification)
+		{
+			alert("You have to download attendance by clicking Download button");
+		}
+		else
+		{
+			if(Notification.permission!='granted'){
+				Notification.requestPermission()
+			}
+			else if(Notification.permission=='granted')
+			{
+				let testNotify=new Notification("You have to download attendance by clicking Download button");
+				setTimeout(()=>{testNotify.close()},4000)
+			}
+		}
+   	}
 	clearInterval(pageIniInterval);
 }
-var pageIniInterval=setInterval(()=>{initiatePage(true)},5000+Math.random()*10000)
+let pageIniInterval=setInterval(()=>{initiatePage(true)},5000+Math.random()*10000)
