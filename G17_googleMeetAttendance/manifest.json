@@ -1,9 +1,8 @@
 {
-
-  "description": "Scans attendees and records time and sends desktop notifications on messages and hand-raise",
+  "description": "Scans attendees and records time and sends desktop notifications on messages",
   "manifest_version": 2,
-  "name": "Google meet attendance & message notify",
-  "version": "4.3.1",
+  "name": "Google meet attendance & message notify UPDATED UI",
+  "version": "4.6.1.0",
   "homepage_url": "https://github.com/KingMohan45/googleMeetAttendanceAndNotifier",
   "icons": {
     "48": "icons/r16_cs_g17.png"
