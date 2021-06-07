@@ -7,4 +7,5 @@ Features:
 * if someone messages even if you aren't active on that tab you will get a desktop notification
 * one can start or stop recording by default it will be started
 * one can download CSV file with id (if any), names and session times separated by ',' at any instance of time
+* On first time users clicks end call, file will be downloaded as a backup
 ** those were working at the time of publishing(as of observed tests), feel free to mail(mohanragam456@gmail.com) me issues if any.
