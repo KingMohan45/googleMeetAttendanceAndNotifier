@@ -33,7 +33,7 @@ let chatObserver=new MutationObserver(function(mutationRecord){
 		}
 	})
 })
-let handRaiseObserver=new MutationObserver((mutationRecord)=>{
+/*let handRaiseObserver=new MutationObserver((mutationRecord)=>{
 	mutationRecord.forEach((mutation)=>{
     	mutation.addedNodes.forEach((person)=>{
       		let name=person.children[0].textContent;
@@ -43,8 +43,8 @@ let handRaiseObserver=new MutationObserver((mutationRecord)=>{
 		    }
 	    })
 	})
-})
-let handRaiseBox=new MutationObserver((mutationRecord)=>{
+})*/
+/*let handRaiseBox=new MutationObserver((mutationRecord)=>{
   	mutationRecord.forEach((mutation)=>{
 		mutation.addedNodes.forEach((addedNode)=>{	
 			if(addedNode.classList.contains("GvcuGe")){
@@ -68,7 +68,7 @@ let handRaiseBox=new MutationObserver((mutationRecord)=>{
 			}
 		})
 	});
-})
+})*/
 let peopleObserver = new MutationObserver(function(mutationRecord){
 	aNodes=[],rNodes=[];
 	mutationRecord.forEach((mutation)=>{
@@ -93,7 +93,7 @@ let peopleObserver = new MutationObserver(function(mutationRecord){
     	if(index==-1){
     		person_details[0].push(name);
 			person_details[1].push(0);
-			if(document.getElementById('start_stop').innerText.startsWith('Stop')){
+			if(document.getElementById('start_stop').classList.contains('recording')){
 				person_details[2].push(Date.now())
 			}
 			else{
@@ -103,7 +103,7 @@ let peopleObserver = new MutationObserver(function(mutationRecord){
     	}
     	else{
     		if(person_details[2][index]==0){
-	    		if(document.getElementById('start_stop').innerText.startsWith('Stop')){
+				if(document.getElementById('start_stop').classList.contains('recording')){
 					person_details[2][index]=Date.now()
 				}
 	    		person_details[3][index]=1;
@@ -124,7 +124,7 @@ let peopleObserver = new MutationObserver(function(mutationRecord){
     	}
 	})
 })
-let emergencyObserver=new MutationObserver((mutationRecord)=>{
+/*let emergencyObserver=new MutationObserver((mutationRecord)=>{
   	mutationRecord.forEach((mutation)=>{
     	mutation.addedNodes.forEach((addedNode)=>{
       		if(addedNode.classList.contains("TqTEJc")){
@@ -146,7 +146,7 @@ let emergencyObserver=new MutationObserver((mutationRecord)=>{
 	      	}
     	})
 	})
-})
+})*/
 function storeDataInCookie(){
 	close_sessions();
 	open_sessions();
@@ -166,13 +166,11 @@ function readCookie(){
 }
 function open_sessions()
 {
-	if(document.getElementById('start_stop').innerText.startsWith('Stop')){
-		person_details[0].forEach((dummy,index)=>{
-			if(person_details[3][index]){
-				person_details[2][index]=Date.now();
-			}
-		})
-	}
+	person_details[0].forEach((dummy,index)=>{
+		if(person_details[3][index]){
+			person_details[2][index]=Date.now();
+		}
+	})
 }
 function close_sessions()
 {
@@ -195,12 +193,8 @@ function downloadData(filename,final_data){
     link.click();
     document.body.removeChild(link);
 }
-function initiateDownload(unusual)
+function initiateDownload()
 {
-	if(unusual!=null && subjectName!=null){
-    		subjectName=unusual+"_"+subjectName;
-    		unusual="";
-  	}
 	let csvFile = "ID,Name,Total_time\n";
     for (let i = 0; i < person_details[0].length; i++) {
     	let tMin=person_details[1][i]+(person_details[2][i]==0?0:(Date.now()-person_details[2][i]))/60000
@@ -229,11 +223,7 @@ function initiateDownload(unusual)
     	}
     }
     date=new Date();
-	downloadData(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+"_"+(subjectName?(subjectName+"_"):"")+(sectionName?(sectionName+"_"):"")+"attendance"+".csv",csvFile);
-	if(unusual!=null && subjectName!=null){
-    		subjectName=subjectName.substring(subjectName.indexOf('_')+1);
-    		unusual="";
-  	}
+	downloadData(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()+date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+"_"+"attendance"+".csv",csvFile);
 }
 function performAction(action){
 	if(action=="Submit"){
@@ -251,24 +241,31 @@ function performAction(action){
 		storeDataInCookie();
 	},60000)
 }
-function initiatePage(showPopup)
-{
-	document.querySelector(".uArJ5e.UQuaGc.kCyAyd.QU4Gid.foXzLb.IeuGXd").click()//open box
-	let sideBar=document.getElementsByClassName("mKBhCf qwU8Me RlceJe kjZr4")[0];
-	sideBar.attributes["jsaction"].value=""//"rcuQ6b:npT2md;z1yzAc:rcuQ6b;transitionend:qQ3yIc; mousedown:mLt3mc;BvOpG:uXqkWb"//prevent close
-	document.onkeydown=(e)=>{
-		setTimeout(()=>{
-		  	if(e.keyCode==27 && document.getElementsByClassName("rG0ybd")[0].offsetWidth==document.body.offsetWidth){
-				sideBar.style.right="-"+sideBar.offsetWidth+"px";
-			}
-		},400);
+function openSideBar(){
+	if(document.getElementsByClassName("u7qdSd w60wqc").length>0 || document.getElementsByClassName("u7qdSd BB6Rdd").length>0){
+		return;
 	}
-	setTimeout(()=>{
-		document.getElementsByClassName("VUk8eb")[0].onclick=()=>{
-			sideBar.style.right="-"+sideBar.offsetWidth+"px"
+	let buttons=document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ JsuyRc boDUxc");
+	if(buttons.length>0){
+		for(let i=0;i<buttons.length;i++){
+			if(buttons[i].attributes["aria-label"].value=="Show everyone"){
+				clearInterval(pageIniInterval);
+				if(i+1<buttons.length)	buttons[i+1].click();
+				setTimeout(()=>{buttons[i].click();},1000);
+				setTimeout(initiatePage,5000);
+				return;
+			}
 		}
-	},500)
-	document.getElementsByClassName("loWbp")[0].onclick=()=>{
+		alert("Something went wrong. Extention Error code- BTN-ERR. Contact developer if possible");
+	}
+	else{
+		alert("Looks like, this is Legacy version(old) of Google meet. For this meet install legacy version of the extension. If not let developer know this. Thank you.");
+	}
+	clearInterval(pageIniInterval);
+}
+function initiatePage()
+{
+	/*document.getElementsByClassName("loWbp")[0].onclick=()=>{
 		setTimeout(()=>{
 		  if(document.getElementsByClassName("rG0ybd")[0].offsetWidth==document.body.offsetWidth){
 		    sideBar.style.right="-"+sideBar.offsetWidth+"px";
@@ -280,34 +277,44 @@ function initiatePage(showPopup)
 	}
 	document.getElementsByClassName("uArJ5e UQuaGc kCyAyd QU4Gid foXzLb")[1].onclick=()=>{
 		sideBar.style.right="0px";
-	}
+	}*/
 	
 	//show buttons;
-	if(document.getElementsByClassName("CYZUZd").length==1){
-		let elementToClone=document.getElementsByClassName("CYZUZd")[0];
-		let customButtons=elementToClone.cloneNode();
-		elementToClone.parentElement.insertBefore(customButtons,elementToClone.nextElementSibling);
-		customButtons.innerHTML="<div class='J8vCN' id='start_stop' >Start recording</div><div class='J8vCN' id='downloadFile'>Download data</div>";
-		let customStyle=document.createElement("style");
-		customStyle.textContent="#start_stop:hover,#downloadFile:hover{box-shadow: 0 1px 6px rgba(32,33,36,.28);border-color: rgba(223,225,229,0);}#downloadFile,#start_stop{color: white;border-radius: 20px;margin: 10px;cursor: pointer;text-align: center;font-size:16px;}#downloadFile{background: rgb(0, 121, 107);padding: 8px;}#start_stop{background: rgb(217, 48, 37);padding: 8px}"
-		document.body.appendChild(customStyle);
+	if(document.getElementsByClassName("CYZUZd").length>0){
+		var controls=document.getElementsByClassName("cZG6je")[0];
+		let downloadBtn=document.createElement("div");
+		let pausePlay=document.createElement("div");
+		controls.insertBefore(downloadBtn,controls.children[0]);
+		controls.insertBefore(pausePlay,controls.children[0]);
+		downloadBtn.outerHTML='<div id="downloadFile" class="a1GRr PjGUeb" style="width:45px;height45px;margin:5px;cursor:pointer"><svg enable-background="new 0 0 32 32" id="Слой_1" version="1.1" viewBox="0 0 32 32" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="border-radius: 50%;height: 30px;background: #618eca;padding: 5px;"><path clip-rule="evenodd" d="M26.704,20.393  c-0.394-0.39-1.034-0.391-1.428,0l-8.275,8.193V1c0-0.552-0.452-1-1.01-1s-1.01,0.448-1.01,1v27.586l-8.275-8.192  c-0.394-0.391-1.034-0.391-1.428,0c-0.394,0.391-0.394,1.024,0,1.414l9.999,9.899c0.39,0.386,1.039,0.386,1.429,0l9.999-9.899  C27.099,21.417,27.099,20.784,26.704,20.393C26.31,20.003,27.099,20.784,26.704,20.393z" fill="#121313" fill-rule="evenodd" id="Arrow_Download"></path></svg></div>'
+		pausePlay.outerHTML='<div id="start_stop" class="a1GRr PjGUeb" style="width:45px;height45px;margin:5px;cursor:pointer"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="border-radius: 50%;height: 30px;background: #618eca;padding: 5px;"><path d="M-838-2232H562v3600H-838z" fill="none"></path><path d="M16 10v28l22-14z"></path><path d="M0 0h48v48H0z" fill="none"></path></svg> </div>'
+
 		document.getElementById('start_stop').addEventListener("click",function(){
-			if(this.innerText.startsWith('Start')){
-				this.innerHTML="Stop recording";
-				open_sessions();
-			}
-			else{
-				this.innerHTML="Start recording";
+			if(this.classList.contains('recording')){
+				this.innerHTML='<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="border-radius: 50%;height: 30px;background: #618eca;padding: 5px;"><path d="M-838-2232H562v3600H-838z" fill="none"></path><path d="M16 10v28l22-14z"></path><path d="M0 0h48v48H0z" fill="none"></path></svg>'
 				close_sessions();
 			}
+			else{
+				this.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pause-circle" style="width: 45px;"><circle cx="12" cy="12" r="10"></circle><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line></svg>'
+				open_sessions();
+			}
+			this.classList.toggle("recording");
 		})
 		document.getElementById('downloadFile').addEventListener("click",function(){
+			console.log("Download initiated");
 			initiateDownload();
 		})
 	}
+	else{
+		alert("Something went wrong. Error code BTN-FAILURE.3");
+	}
 	//buttons end
 
-	document.querySelector(".f0WtFf").insertBefore(document.querySelector(".uD3s5c"),document.querySelector(".f0WtFf").childNodes[0]);//change presentation button place
+	//Notification compatibility check
+	if(!window.Notification)
+	{
+		alert("Your browser won't support desktop notifications");
+	}
 
 	//Notification compatibility check
 	if(!window.Notification)
@@ -317,33 +324,43 @@ function initiatePage(showPopup)
 	else
 	{
 		//chat messages observer
-		let chatParentElement=document.querySelector(".z38b6.CnDs7d.hPqowe");
+		/*let chatParentElement=document.querySelector(".z38b6.CnDs7d.hPqowe");
 		if(chatParentElement!=null){
 			chatObserver.observe(chatParentElement,{childList:true,subtree:true})
+		}*/
+		let message="You can now see messages by notifications";
+		let chatParentElement=document.getElementsByClassName("z38b6 CnDs7d hPqowe");
+		if(chatParentElement.length==1){
+			chatObserver.observe(chatParentElement[0],{childList:true,subtree:true})
+		}
+		else{
+			message="Due to some issue message notifications can't be displayed. Check manually. Contact developer"
 		}
 		if(Notification.permission!='granted'){
+			alert(message)
 			Notification.requestPermission()
 		}
 		else if(Notification.permission=='granted')
 		{
-			let testNotify=new Notification("Desktop notications enabled");
+			let testNotify=new Notification(message);
 			setTimeout(()=>{testNotify.close()},4000)
 		}
 	}
 
-	//hand-raise observer
+	/*//hand-raise observer
 	if(document.getElementsByClassName("GvcuGe")[0].attributes["aria-label"].textContent=="Raised hands"){
 	  handRaiseObserver.observe(document.getElementsByClassName("GvcuGe")[0],{childList:true})
 	}
 
 	//hand-raise box observer for first/fresh(one) hand-raise
-	handRaiseBox.observe(document.getElementsByClassName("ggUFBf")[0].children[0],{childList:true})
+	handRaiseBox.observe(document.getElementsByClassName("ggUFBf")[0].children[0],{childList:true})*/
 
 	//selecting people parent class and then select people parent
 	let peopleParentClass=document.getElementsByClassName("GvcuGe"),peopleParent;
 	for(let i=0;i<peopleParentClass.length;i++){
 		if(peopleParentClass[i].attributes["aria-label"] && peopleParentClass[i].attributes["aria-label"].value=="Participants"){
 			peopleParent=peopleParentClass[i];
+			console.log("People parent element detected");
 			break;
 		}
 	}
@@ -358,7 +375,7 @@ function initiatePage(showPopup)
 			if(index==-1){
 				person_details[0].push(name);
 				person_details[1].push(0);
-				if(document.getElementById('start_stop').innerText.startsWith('Stop')){
+				if(document.getElementById('start_stop').classList.contains('recording')){
 					person_details[2].push(Date.now())
 				}
 				else{
@@ -367,7 +384,7 @@ function initiatePage(showPopup)
 				person_details[3].push(1);
 			}
 			else{
-				if(document.getElementById('start_stop').innerText.startsWith('Stop')){
+				if(document.getElementById('start_stop').classList.contains('recording')){
 					person_details[2].push(Date.now())
 				}
 				person_details[3][index]++;
@@ -378,11 +395,11 @@ function initiatePage(showPopup)
 	peopleObserver.observe( peopleParent, { childList:true})
 
 	//emergency observer
-	emergencyObserver.observe(document.getElementsByClassName("crqnQb")[0],{childList:true})
-
+	/*emergencyObserver.observe(document.getElementsByClassName("crqnQb")[0],{childList:true})*/
+/*
 	if(!showPopup){
 		return;
-	}
+	}*/
 	//notification template
 	let mainElement=document.getElementsByClassName("MCcOAc IqBfM EWZcud cjGgHb d8Etdd LcUz9d ecJEib")[0]
 	let dataInputBox=document.createElement("div")
@@ -393,10 +410,10 @@ function initiatePage(showPopup)
 	let backupData=readCookie();
 	//checking backup and ask user to import or not
 	if(backupData!=null && document.getElementById("dataInputElement")){
-		dataInputBox.innerHTML="<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='max-width: 400px;min-width:300px;flex-direction: column;'> <div class='XfpsVe J9fJmf' style='flex-direction: column;padding: 5px;'> <p align='center'><p style='font-size: 20px;font-weight: 400;margin;margin: 10px;'>Backup found.Do you want to import?</p> <span>( Press No to start fresh session )</span></p> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' value='Subject name:"+backupData[0]+"' disabled> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' value='Section name:"+backupData[1]+"' disabled></div> <div class='XfpsVe J9fJmf' style='padding: px;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='no' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>No</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='yes' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Yes</span></div> </div> </div> </div>"
+		dataInputBox.innerHTML="<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='text-align:center;flex-direction:column;max-width: 400px;min-width:300px;'> <div class='XfpsVe J9fJmf' style='flex-direction: column;padding: 5px;'> <p align='center'><p style='font-size: 20px;font-weight: 400;margin;margin: 10px;'>Backup found.Do you want to import?</p> <span>( Press No to start fresh session )</span></p> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' value='Subject name:"+backupData[0]+"' disabled> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' value='Section name:"+backupData[1]+"' disabled></div> <div class='XfpsVe J9fJmf' style='flex-direction:row;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='no' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>No</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='yes' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Yes</span></div> </div> </div> </div>"
 		document.getElementById("no").onclick=()=>{
-			dataInputBox.innerHTML=  "<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='max-width: 400px;min-width:300px;flex-direction: column;'> <div class='XfpsVe J9fJmf' style='flex-direction: column;padding: 5px;'> <p align='center'> <p style='font-size: 20px;font-weight: 400;margin: 0px;'>Enter data</p> <br><span>( leave empty if not applicable )</span> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' placeholder='Enter subject name'> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' placeholder='Enter section name'></div> <div class='XfpsVe J9fJmf' style='padding: px;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='calcel' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>Cancel</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='submit' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Submit</span></div> </div> </div> </div>"
-			document.getElementById("calcel").onclick=()=>{performAction("Calcel");}
+		dataInputBox.innerHTML=  "<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='text-align:center;flex-direction:column;max-width: 400px;min-width:300px;'> <div class='XfpsVe J9fJmf' style='padding: 5px;'> <p align='center'> <p style='font-size: 20px;font-weight: 400;margin: 0px;'>Enter data</p> <br><span>( leave empty if not applicable )</span> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' placeholder='Enter subject name'> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' placeholder='Enter section name'></div> <div class='XfpsVe J9fJmf' style='flex-direction:row;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='cancel' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>Cancel</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='submit' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Submit</span></div> </div> </div> </div>"
+			document.getElementById("cancel").onclick=()=>{performAction("Calcel");}
 			document.getElementById("submit").onclick=()=>{performAction("Submit");}
 		}
 		document.getElementById("yes").onclick=()=>{
@@ -418,18 +435,19 @@ function initiatePage(showPopup)
 		}
 	}
 	else{
-		dataInputBox.innerHTML=  "<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='max-width: 400px;min-width:300px;flex-direction: column;'> <div class='XfpsVe J9fJmf' style='flex-direction: column;padding: 5px;'> <p align='center'> <p style='font-size: 20px;font-weight: 400;margin: 0px;'>Enter data</p> <br><span>( leave empty if not applicable )</span> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' placeholder='Enter subject name'> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' placeholder='Enter section name'></div> <div class='XfpsVe J9fJmf' style='padding: px;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='calcel' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>Cancel</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='submit' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Submit</span></div> </div> </div> </div>"
-		document.getElementById("calcel").onclick=()=>{performAction("Calcel");}
+		dataInputBox.innerHTML=  "<div class='mjANdc Nevtdc'> <div class='g3VIld iUQSvf vDc8Ic J9Nfi iWO5td' style='text-align:center;max-width: 400px;min-width:300px;flex-direction: column;'> <div class='XfpsVe J9fJmf' style='flex-direction: column;padding: 5px;'> <p align='center'> <p style='font-size: 20px;font-weight: 400;margin: 0px;'>Enter data</p> <br><span>( leave empty if not applicable )</span> <input id='input1' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' autofocus='true' placeholder='Enter subject name'> <input id='input2' style='border: 0;padding: 5px;text-align: center;height: 30px;border-bottom: 2px solid rgb(0, 121, 107);' placeholder='Enter section name'></div> <div class='XfpsVe J9fJmf' style='flex-direction:row;justify-content: center;'> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='cancel' style='background-color: rgb(0, 121, 107);'><span class='RveJvd snByac' style='color: white;padding: 10px;'>Cancel</span></div> <div role='button' class='U26fgb O0WRkf oG5Srb C0oVfc kHssdc vSWmFe' aria-disabled='false' tabindex='0' id='submit' style='background-color: rgb(0, 121, 107);margin-left: 30px;'><span class='RveJvd snByac' style='justify-content: center;color: white;padding: 10px;'>Submit</span></div> </div> </div> </div>"
+		document.getElementById("cancel").onclick=()=>{performAction("Calcel");}
 		document.getElementById("submit").onclick=()=>{performAction("Submit");}
 	}
-	let endBtn=document.getElementsByClassName("U26fgb JRY2Pb mUbCce kpROve GaONte Qwoy0d ediA8b vzpHY M9Bg4d");
-	if(endBtn.length==1){
-		endBtn[0].attributes["aria-disabled"].value="true";
+	let endBtn=document.getElementsByClassName("VfPpkd-Bz112c-LgbsSe yHy1rc eT1oJ tWDL4c jh0Tpd Gt6sbf QQrMi ftJPW");
+	if(endBtn.length==1 && endBtn[0].attributes["aria-label"].value=="Leave call"){
+		let controller=endBtn[0].attributes["jscontroller"].value;
+		endBtn[0].attributes["jscontroller"].value="";
 		function removeBehavaviour(){
 			initiateDownload();
    	 		alert("Click ok/close tab after file download");
-   	 		endBtn[0].addEventListener("click",removeBehavaviour);
-   	 		endBtn[0].attributes["aria-disabled"].value="false";
+   	 		endBtn[0].removeEventListener("click",removeBehavaviour);
+   	 		endBtn[0].attributes["jscontroller"].value=controller;
 		}
 		endBtn[0].addEventListener("click",removeBehavaviour);
    	}
@@ -450,6 +468,5 @@ function initiatePage(showPopup)
 			}
 		}
    	}
-	clearInterval(pageIniInterval);
 }
-let pageIniInterval=setInterval(()=>{initiatePage(true)},5000+Math.random()*10000)
+let pageIniInterval=setInterval(openSideBar,10000+Math.random()*5000);
